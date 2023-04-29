@@ -14,6 +14,7 @@ Successfully transferred ownership to 0xB31FB873A93Fa93186B08d54059dd70FC86B137e
 TXN: 0xc9fbf2bdac778caa2dfda431397c0de69656f4290287d8d28ad1f70d4a96910e
 
 ## 4. failed transferOwnership
-Transfer by non-owner failed
+Transfer by non-owner failed.
+Fail with error 'Caller is not the owner'
 <br>
 TXN: 0xd7d154ed6faef5a539ffdaf22b7fd6345bef07a977479e78af419bf15e538be4
