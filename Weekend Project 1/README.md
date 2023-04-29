@@ -8,3 +8,7 @@ Successfully set text from "Hello World" to "Weekend Project 1"
 <br>
 TXN: 0x7325720a528d97631be20073f26fd7e34cf1b9577ae5dd7c7e35532629654480
 
+## 3. transferOwnership
+Successfully transferred ownership to 0xB31FB873A93Fa93186B08d54059dd70FC86B137e
+<br>
+TXN: 0xc9fbf2bdac778caa2dfda431397c0de69656f4290287d8d28ad1f70d4a96910e
