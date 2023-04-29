@@ -1,1 +1,1 @@
-# WeekendProjects-Encode Group 10
+# Weekend Projects Group 10
