@@ -18,3 +18,14 @@ Transfer by non-owner failed.
 Fail with error 'Caller is not the owner'
 <br>
 TXN: 0xd7d154ed6faef5a539ffdaf22b7fd6345bef07a977479e78af419bf15e538be4
+
+## 5. transferOwnership
+Successfully transferred ownership to 0xe1738cEbAE9E0efC82fae3cef28D7a852AF8e22c
+<br>
+TXN: 0xd7bc7108b0ebab174d2a4e87ca4dfeae621f039b0cd25c54f2b572d499a1b653
+
+## 6. failed transferOwnership
+Transfer by non-owner failed.
+Fail with error 'Caller is not the owner'
+<br>
+TXN: 0x96b6b25128de28ac58d3c5e11454a8aedd2a8fdfecf0594a3c69f59910720111
