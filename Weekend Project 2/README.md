@@ -52,4 +52,11 @@ yarn ts-node --files .\scripts\castVotes.ts contractAddress
 ```
 Sucessfully returns winning proposal name
 
+**Reports**
+
+- Voted for proposal #1 via script.
+  TX HASH: 0xd9c88fa1fc84ee7102693acc3577656dc6b91269972eaba69d8a5c3eb4dbd40a
+  Discord ID: 0xbb#4050 
+  
+
 
