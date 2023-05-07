@@ -7,7 +7,7 @@ dotenv.config()
 
 // yarn ts-node --files .\scripts\giveVotingRights.ts walletAddress contractAddress
 // Contract address: 0xb2750f3e973fe82a5b0ff9de8996b6de288f20df
-// 0x39638D5dF0478a9E7f23fF5BD631C8729EDE8022
+// 0xb2750f3e973fe82a5b0ff9de8996b6de288f20df
 
 async function main() {
     const args = process.argv.slice(2)

@@ -7,6 +7,7 @@ dotenv.config()
 
 // yarn ts-node --files .\scripts\castVotes.ts delegateAddress contractAddress
 // Contract address: 0xb2750f3e973fe82a5b0ff9de8996b6de288f20df
+// 0xb2750f3e973fe82a5b0ff9de8996b6de288f20df
 
 async function main() {
     const args = process.argv.slice(2)
