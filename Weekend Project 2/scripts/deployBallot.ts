@@ -4,6 +4,13 @@ import * as dotenv from "dotenv"
 dotenv.config()
 
 // yarn ts-node --files .\scripts\Ballot.ts Choc Strab Van
+/*
+i had the same error.
+but if you change provider line to use   const provider = new ethers.providers.JsonRpcProvider(
+    "");
+and use the https from alchemy instead of the key it works.
+also note that when you create alchemy project you choose your network before. so the key is probably a goerli key
+*/
 
 async function main() {
     const proposals = process.argv.slice(2)
@@ -11,9 +18,8 @@ async function main() {
     const wallet = new ethers.Wallet(process.env.PRIVATE_KEY ?? "")
     console.log(`Using wallet address ${wallet.address}`)
 
-    const provider = new ethers.providers.AlchemyProvider(
-        "goerli",
-        process.env.ALCHEMY_API_KEY
+    const provider = new ethers.providers.JsonRpcProvider(
+        process.env.ALCHEMY_HTTPS_API_KEY
     )
     const lastBlock = await provider.getBlock("latest")
     console.log(`The last block is ${lastBlock.number}`)
