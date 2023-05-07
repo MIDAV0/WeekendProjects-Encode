@@ -34,6 +34,10 @@ Voted for proposal 2
 
 TXN: 0xed8bb39c3a8bd832b9c87b65e977b872afa7fc32d1bb7d8e001f0d5673bddfb3
 
+Vote failed because account did not have voting rights
+
+TXN: 0x8b1fedb6518000030cc5692890135bb8a0fc140eaa0ba1e46e9b2c03b7ddd58c
+
 
 4. delegateVotes.ts - delegate votes
 ```
