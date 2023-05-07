@@ -6,6 +6,7 @@ dotenv.config()
 
 
 // yarn ts-node --files .\scripts\castVotes.ts delegateAddress contractAddress
+// Contract address: 0xb2750f3e973fe82a5b0ff9de8996b6de288f20df
 
 async function main() {
     const args = process.argv.slice(2)
@@ -15,9 +16,8 @@ async function main() {
     const wallet = new ethers.Wallet(process.env.PRIVATE_KEY ?? "")
     console.log(`Using wallet address ${wallet.address}`)
 
-    const provider = new ethers.providers.AlchemyProvider(
-        "goerli",
-        process.env.ALCHEMY_API_KEY
+    const provider = new ethers.providers.JsonRpcProvider(
+        process.env.ALCHEMY_HTTPS_API_KEY
     )
     const lastBlock = await provider.getBlock("latest")
     console.log(`The last block is ${lastBlock.number}`)
@@ -34,7 +34,7 @@ async function main() {
     console.log(`Delegating vote to ${delegateAddress}`)
     const tx = await ballotContract.connect(signer).delegate(delegateAddress)
     await tx.wait()
-    console.log(`Delegated vote from ${signer.address} to ${delegateAddress} at block ${tx.blockNumber} at transaction ${tx.hash}`)
+    console.log(`Delegated vote from ${signer.address} to ${delegateAddress} at transaction ${tx.hash}`)
 }
 
 main().catch((error) => {

@@ -6,6 +6,7 @@ dotenv.config()
 
 
 // yarn ts-node --files .\scripts\castVotes.ts proposalNumber contractAddress
+// Contract address: 0xb2750f3e973fe82a5b0ff9de8996b6de288f20df
 
 async function main() {
     const args = process.argv.slice(2)
@@ -15,9 +16,8 @@ async function main() {
     const wallet = new ethers.Wallet(process.env.PRIVATE_KEY ?? "")
     console.log(`Using wallet address ${wallet.address}`)
 
-    const provider = new ethers.providers.AlchemyProvider(
-        "goerli",
-        process.env.ALCHEMY_API_KEY
+    const provider = new ethers.providers.JsonRpcProvider(
+        process.env.ALCHEMY_HTTPS_API_KEY
     )
     const lastBlock = await provider.getBlock("latest")
     console.log(`The last block is ${lastBlock.number}`)
@@ -32,9 +32,9 @@ async function main() {
     const ballotContract = await ballotFactory.attach(contractAddress) 
     
     console.log(`Voting for proposal ${proposalNumber}`)
-    const tx = await ballotContract.connect(signer).vote(proposalNumber)
+    const tx = await ballotContract.connect(signer).vote(Number(proposalNumber))
     await tx.wait()
-    console.log(`Voted for proposal ${proposalNumber} at block ${tx.blockNumber} at transaction ${tx.hash}`)
+    console.log(`Voted for proposal ${proposalNumber} at transaction ${tx.hash}`)
 }
 
 main().catch((error) => {
