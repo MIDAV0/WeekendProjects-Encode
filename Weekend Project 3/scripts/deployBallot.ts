@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import { Ballot__factory } from "../typechain-types";
+import { ERC20Votes__factory } from "../typechain-types";
 import * as dotenv from "dotenv"
 dotenv.config()
 
@@ -30,9 +30,9 @@ async function main() {
 
     console.log("---------")
 
-    console.log("Deploying Ballot contract")
+    console.log("Deploying ERC20Votes contract")
     //const ballotFactory = await ethers.getContractFactory("Ballot")
-    const ballotFactory = new Ballot__factory(signer)
+    const ballotFactory = new ERC20Votes__factory()
     const convertedProposals = proposals.map((proposal) => ethers.utils.formatBytes32String(proposal))
 
     const ballotContract = await ballotFactory.deploy(convertedProposals)

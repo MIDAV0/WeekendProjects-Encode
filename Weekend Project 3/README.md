@@ -10,21 +10,23 @@
 
 ## Scripts
 
-1. deployBallot.ts - deploy ballot contract
+1. deployERC20Votes.ts - deploy token contract
 ```
-yarn ts-node --files .\scripts\deployBallot.ts Proposal1 Proposal2 Proposal3
+yarn ts-node --files .\scripts\deployERC20Votes.ts
 ```
-Deployed contract at address 0xb2750f3e973Fe82A5B0Ff9de8996B6dE288f20df 
+Deployed contract at address 0x575B3aC7FfF4dd85c88c1283f35aE3787f544823 
 
-TXN: 0x25f156eb51b73abd12b7365051d54db5e642ca94f71c26dc4fc95ed8b8a02ff3
+TXN: 0x6a839f0408a7a73fdcadb26136a75a0fc97db058a2ed3d7a2c7856b8e51b4553
 
-2. giveVotingRights.ts - give voting rights to accounts
+2. selfDelegateVotes.ts - give voting rights to yourself
 ```
-yarn ts-node --files .\scripts\giveVotingRights.ts walletAddress contractAddress
+yarn ts-node --files .\scripts\delegateVotes.ts contractAddress amount
 ```
-Gave voting rights to 0x39638D5dF0478a9E7f23fF5BD631C8729EDE8022
+Minted 10 tokens to 0x65315D8c187178bfFfA37C400f0C8842e0724D24
+TXN: 0x08dadfea022e3101a1a8e35109e9898fea4dab7925c79004f8298c06edb81fe6
 
-TXN: 0x8420d70bbd0dbc3c6a0fb14b0b0eede47024eea54b376b68f532456740fd7c84
+Self delegated 10 votes to 0x65315D8c187178bfFfA37C400f0C8842e0724D24
+TXN: 0xe744299bc3599e3599c6d44b40f8733403fc47dd18d8e3b0b09de83f052610a7
 
 3. castVotes.ts - cast votes
 ```

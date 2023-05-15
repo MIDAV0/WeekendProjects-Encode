@@ -1,17 +1,11 @@
 import { ethers } from "hardhat";
-import { Ballot__factory } from "../typechain-types";
+import { MyERC20Votes__factory } from "../typechain-types";
 import * as dotenv from "dotenv"
-import { sign } from "crypto";
 dotenv.config()
 
-
-// yarn ts-node --files .\scripts\castVotes.ts proposalNumber contractAddress
-// Contract address: 0xb2750f3e973fe82a5b0ff9de8996b6de288f20df
+// yarn ts-node --files .\scripts\deployERC20Votes.ts
 
 async function main() {
-    const args = process.argv.slice(2)
-    const proposalNumber = args[0]
-    const contractAddress = args[1]
     console.log("Testing")
     const wallet = new ethers.Wallet(process.env.PRIVATE_KEY ?? "")
     console.log(`Using wallet address ${wallet.address}`)
@@ -28,13 +22,13 @@ async function main() {
 
     console.log("---------")
 
-    const ballotFactory = new Ballot__factory(signer)
-    const ballotContract = await ballotFactory.attach(contractAddress) 
-    
-    console.log(`Voting for proposal ${proposalNumber}`)
-    const tx = await ballotContract.connect(signer).vote(Number(proposalNumber))
-    await tx.wait()
-    console.log(`Voted for proposal ${proposalNumber} at transaction ${tx.hash}`)
+    console.log("Deploying ERC20Votes contract")
+    //const ballotFactory = await ethers.getContractFactory("Ballot")
+    const MyERC20VotesFactory = new MyERC20Votes__factory(signer)
+
+    const MyERC20VotesContract = await MyERC20VotesFactory.deploy()
+    const deployTx = await MyERC20VotesContract.deployTransaction.wait()
+    console.log(`The ballot contract was deployed at address ${MyERC20VotesContract.address} at block ${deployTx.blockNumber}`)
 }
 
 main().catch((error) => {

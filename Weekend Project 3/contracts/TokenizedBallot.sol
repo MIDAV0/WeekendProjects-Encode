@@ -20,6 +20,7 @@ contract TokenizedBallot {
 
     constructor(bytes32[] memory proposalNames, address _tokenContract) {
         tokenContract = IMyVotingToken( _tokenContract);
+        targetBlockNumber = block.number;
         for (uint i = 0; i < proposalNames.length; i++) {
             proposals.push(Proposal({
                 name: proposalNames[i],
