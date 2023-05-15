@@ -28,37 +28,31 @@ TXN: 0x08dadfea022e3101a1a8e35109e9898fea4dab7925c79004f8298c06edb81fe6
 Self delegated 10 votes to 0x65315D8c187178bfFfA37C400f0C8842e0724D24
 TXN: 0xe744299bc3599e3599c6d44b40f8733403fc47dd18d8e3b0b09de83f052610a7
 
-3. castVotes.ts - cast votes
+3. delegateToAddress.ts - transfer votes to specific address
 ```
-yarn ts-node --files .\scripts\castVotes.ts proposalNumber contractAddress
+yarn ts-node --files .\scripts\delegateToAddress.ts contractAddress amount address
 ```
-Voted for proposal 2
-
-TXN: 0xed8bb39c3a8bd832b9c87b65e977b872afa7fc32d1bb7d8e001f0d5673bddfb3
-
-Vote failed because account did not have voting rights
-
-TXN: 0x8b1fedb6518000030cc5692890135bb8a0fc140eaa0ba1e46e9b2c03b7ddd58c
+Trasnfered 10 votes to 0x993AFeeaD710065aa20EDb6407a4F35a8bB67E77
+TXN: 0xca1225703e009dd96cf1b4e83e720bc893d57b57537eda0e1c8ff4a6f33c2d93
 
 
-4. delegateVotes.ts - delegate votes
+4. deployTokenizedBallot.ts - deploy ballot contract
 ```
-yarn ts-node --files .\scripts\castVotes.ts delegateAddress contractAddress
+yarn ts-node --files .\scripts\deployTokenizedBallot.ts contractAddress proposals
 ```
-Test TXNs:
+Contract deplloyed at address 0x261c12867FaAd9d55080788eB208Ceda3F37a4e3
+TXN: 0x3e9d56cbce5bda5956272c9d96a9619c85d133c8d7e4aee1270e983dd31755e0
 
+
+5. voteForProposal.ts - vote for proposal
+```
+yarn ts-node --files .\scripts\voteForProposal.ts contractAddress amount proposalId
+``` 
+Voted for proposal 1 with 1 vote
+TXN:
 
 5. winningProposal.ts - get winning proposal
 ```
 yarn ts-node --files .\scripts\castVotes.ts contractAddress
 ```
 Sucessfully returns winning proposal name
-
-**Reports**
-
-- Voted for proposal #1 via script.
-  TX HASH: 0xd9c88fa1fc84ee7102693acc3577656dc6b91269972eaba69d8a5c3eb4dbd40a
-  Discord ID: 0xbb#4050 
-  
-
-

@@ -1,20 +1,14 @@
 import { ethers } from "hardhat";
-import { ERC20Votes__factory } from "../typechain-types";
+import { TokenizedBallot__factory } from "../typechain-types";
 import * as dotenv from "dotenv"
 dotenv.config()
 
-// yarn ts-node --files .\scripts\Ballot.ts Choc Strab Van
-/*
-i had the same error.
-but if you change provider line to use   const provider = new ethers.providers.JsonRpcProvider(
-    "");
-and use the https from alchemy instead of the key it works.
-also note that when you create alchemy project you choose your network before. so the key is probably a goerli key
-*/
+// yarn ts-node --files .\scripts\deployTokenizedBallot.ts contractAddress Choc Strab Van
 
 async function main() {
-    const proposals = process.argv.slice(2)
-    console.log("Testing")
+    const args = process.argv.slice(2)
+    const contractAddress = args[0]
+    const proposals = args.slice(1)
     const wallet = new ethers.Wallet(process.env.PRIVATE_KEY ?? "")
     console.log(`Using wallet address ${wallet.address}`)
 
@@ -30,14 +24,14 @@ async function main() {
 
     console.log("---------")
 
-    console.log("Deploying ERC20Votes contract")
+    console.log("Deploying TokenizedBallot contract")
     //const ballotFactory = await ethers.getContractFactory("Ballot")
-    const ballotFactory = new ERC20Votes__factory()
+    const TokenizedBallotFactory = new TokenizedBallot__factory(signer)
     const convertedProposals = proposals.map((proposal) => ethers.utils.formatBytes32String(proposal))
 
-    const ballotContract = await ballotFactory.deploy(convertedProposals)
-    const deployTx = await ballotContract.deployTransaction.wait()
-    console.log(`The ballot contract was deployed at address ${ballotContract.address} at block ${deployTx.blockNumber}`)
+    const contract = await TokenizedBallotFactory.deploy(convertedProposals, contractAddress)
+    const deployTx = await contract.deployTransaction.wait()
+    console.log(`The ballot contract was deployed at address ${contract.address} at block ${deployTx.blockNumber}, at TXN: ${deployTx.transactionHash}`)
 }
 
 main().catch((error) => {
