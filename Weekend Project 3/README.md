@@ -40,7 +40,7 @@ TXN: 0xca1225703e009dd96cf1b4e83e720bc893d57b57537eda0e1c8ff4a6f33c2d93
 ```
 yarn ts-node --files .\scripts\deployTokenizedBallot.ts contractAddress proposals
 ```
-Contract deplloyed at address 0x261c12867FaAd9d55080788eB208Ceda3F37a4e3
+Contract deplloyed at address 0x21e2599439BE08a7b0ea46295246ec8Cc09595F6
 TXN: 0x3e9d56cbce5bda5956272c9d96a9619c85d133c8d7e4aee1270e983dd31755e0
 
 
@@ -56,3 +56,7 @@ TXN:
 yarn ts-node --files .\scripts\castVotes.ts contractAddress
 ```
 Sucessfully returns winning proposal name
+
+
+TokBal: 0xBeBA913e1E8c66125305cE168ab9a98c4Caf1Cc6
+ERC20VOtes: 0x21e2599439BE08a7b0ea46295246ec8Cc09595F6

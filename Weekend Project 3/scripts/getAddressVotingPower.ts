@@ -30,7 +30,7 @@ async function main() {
     const MyERC20VotesFactory = new MyERC20Votes__factory(signer)
     const contract = await MyERC20VotesFactory.attach(contractAddress) 
     
-    const votingPower = await contract.connect(signer).getPastVotes(walletAddress, lastBlock.number-1)
+    const votingPower = await contract.connect(signer).getPastVotes(walletAddress, 3532009)
 
     console.log(`Address ${walletAddress} has ${votingPower} voting power`)
 }

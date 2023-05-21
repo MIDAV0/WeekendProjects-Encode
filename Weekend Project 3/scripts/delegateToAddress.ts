@@ -35,7 +35,7 @@ async function main() {
     const MyERC20VotesFactory = new MyERC20Votes__factory(signer)
     const contract = await MyERC20VotesFactory.attach(contractAddress) 
     
-    const mintTx = await contract.mint(signer.address, ethers.utils.parseUnits(amount))
+    const mintTx = await contract.connect(signer).mint(signer.address, ethers.utils.parseUnits(amount))
     const mintTxReceipt = await mintTx.wait()
 
     console.log(`Minted ${amount} tokens to ${signer.address} with txHash ${mintTxReceipt.transactionHash}`)
@@ -43,10 +43,16 @@ async function main() {
     // const delegateTx = await contract.delegate(delegateAddress);
     // const delegateTxReceipt = await delegateTx.wait();
 
-    const transferTx = await contract.connect(signer).transfer(delegateAddress, ethers.utils.parseUnits(amount))
+    const transferTx = await contract.connect(signer).transfer(delegateAddress, ethers.utils.parseUnits(amount).div(2))
     const trReciept = await transferTx.wait()
 
     console.log(`Delegated votes to ${delegateAddress} at TXN: ${trReciept.transactionHash}.`)
+
+    const latestBlock = await provider.getBlock("latest")
+
+    let pastVotes = await contract.connect(signer).getPastVotes(signer.address, latestBlock.number-1);
+    console.log(`${delegateAddress} has ${ethers.utils.formatUnits(pastVotes)} votes at ${latestBlock.number-1} block`)
+
 }
 
 main().catch((error) => {

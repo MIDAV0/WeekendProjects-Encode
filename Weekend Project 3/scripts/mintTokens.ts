@@ -9,6 +9,7 @@ dotenv.config()
 async function main() {
     const args = process.argv.slice(2)
     const contractAddress = args[0]
+    const amount = args[1]
     const wallet = new ethers.Wallet(process.env.PRIVATE_KEY ?? "")
     console.log(`Using wallet address ${wallet.address}`)
 
@@ -27,11 +28,15 @@ async function main() {
     const MyERC20VotesFactory = new MyERC20Votes__factory(signer)
     const contract = await MyERC20VotesFactory.attach(contractAddress) 
 
-    const delegateTx = await contract.delegate(signer.address);
-    const delegateTxReceipt = await delegateTx.wait();
+    console.log("Minting tokens...")
+    
+    const mintTx = await contract.mint(signer.address, ethers.utils.parseUnits(amount), {gasLimit: 2000000})
+    const mintTxReceipt = await mintTx.wait()
+
+    console.log(`Minted ${amount} tokens to ${signer.address} with txHash ${mintTxReceipt.transactionHash}`)
 
     const votes = await contract.getVotes(signer.address)
-    console.log(`Self delegated votes to ${signer.address} at TXN: ${delegateTxReceipt.transactionHash}. Current voting power ${votes}`)
+    console.log(`Current voting power ${votes}`)
 }
 
 main().catch((error) => {

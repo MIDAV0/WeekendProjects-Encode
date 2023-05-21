@@ -18,9 +18,14 @@ contract TokenizedBallot {
 
     mapping(address => uint256) public votingPowerSpent;
 
+    modifier withSnapshot() {
+        require(targetBlockNumber != 1, "Target block is not set");
+        _;
+    }
+
     constructor(bytes32[] memory proposalNames, address _tokenContract) {
         tokenContract = IMyVotingToken( _tokenContract);
-        targetBlockNumber = block.number;
+        targetBlockNumber = 1;
         for (uint i = 0; i < proposalNames.length; i++) {
             proposals.push(Proposal({
                 name: proposalNames[i],
@@ -29,7 +34,12 @@ contract TokenizedBallot {
         }
     }
 
-    function vote(uint proposal, uint256 amount) external {
+    function makeSnapshot() external {
+        require(targetBlockNumber == 1, "Snapshot already been made");
+        targetBlockNumber = block.number;
+    }
+
+    function vote(uint proposal, uint256 amount) external withSnapshot() {
         // Compute VP
         require(votingPower(msg.sender) >= amount, "Amount exceeds voting power");
         tokenContract.getPastVotes(msg.sender, targetBlockNumber);
@@ -54,7 +64,7 @@ contract TokenizedBallot {
         }
     }
 
-    function winnerName() external view
+    function winnerName() external view withSnapshot()
             returns (bytes32 winnerName_)
     {
         winnerName_ = proposals[winningProposal()].name;
