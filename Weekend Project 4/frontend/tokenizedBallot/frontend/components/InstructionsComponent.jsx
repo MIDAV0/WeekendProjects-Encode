@@ -3,6 +3,10 @@ import Router, { useRouter } from "next/router";
 import { useSigner, useNetwork, useBalance } from "wagmi";
 import { useState, useEffect } from "react";
 
+const adminAddresses = [
+
+]
+
 export default function InstructionsComponent() {
 	const router = useRouter();
 	return (
@@ -13,15 +17,118 @@ export default function InstructionsComponent() {
 				</h1>
 			</header>
 
-			<div className={styles.buttons_container}>
-				<Wallet></Wallet>
-				<RequestTokens></RequestTokens>
-			</div>
-			<div className={styles.footer}>
-				Footer
+			<div className={styles.components}>
+				<div className={styles.box}>
+					<Wallet></Wallet>
+				</div>
+				<div className={styles.box}>
+					<RequestTokens></RequestTokens>
+				</div>
+				<div className={styles.box}>
+					<Snapshot></Snapshot>
+				</div>
+				<div className={styles.box}>
+					<Delegate></Delegate>
+				</div>
+				<div className={styles.box}>
+					<Vote></Vote>
+				</div>
+				<div className={styles.box}>
+					<Winner></Winner>
+				</div>
 			</div>
 		</div>
 	);
+}
+
+function Winner() {
+	return (
+		<>
+			<h1>Winning proposal</h1>
+			<p>----</p>
+			<p>----</p>
+		</>
+	)
+}
+
+function Vote() {
+	return (
+		<>
+			<h1>Vote</h1>
+			<button>Vote</button>
+		</>
+	)
+}
+
+function Delegate() {
+	return (
+		<>
+			<h1>Delegate votes</h1>
+			<input type="text" placeholder="Address"></input>
+			<button>Delegate</button>
+			<p>----</p>
+			<button>Delegate to yourself</button>
+		</>
+	)
+}
+
+function Snapshot() {
+	const { data: signer } = useSigner();
+	const permitted = signer?._address in adminAddresses
+	const snapshot = getSnapshot();
+
+	const [snapShotData, setSnapShotData] = useState(null);
+	const [isLoading, setLoading] = useState(false);
+
+	useEffect(() => {
+		setLoading(true);
+		fetch('http://localhost:3001/api/requestBalance')
+		.then((res) => res.json())
+		.then((dataTx) => {
+			setSnapShotData(dataTx);
+			setLoading(false);
+		})
+		.catch((error) => {
+			console.error(error)
+		});
+	}, []);
+
+	if (isLoading) return <p>Loading...</p>;
+	if (!snapShotData) return <p>No token data</p>;
+	
+	return (
+		<>
+			<div>
+				<h1>Snapshot</h1>
+				{
+					snapShotData !== 1 ?
+					<p>Snapshot was made at block {snapShotData}</p> :
+					<button
+						disabled={!permitted}
+						onClick={() => {}}
+					>
+						{permitted ? "Snapshot" : "Not permitted"}
+					</button>
+				}
+			</div>
+		</>
+	)
+}
+
+async function getSnapshot() {	
+	const [data, setData] = useState(null);
+
+	useEffect(() => {
+		fetch('http://localhost:3001/api/requestSnapshot')
+		.then((res) => res.json())
+		.then((data) => {
+			setData(data);
+		})
+		.catch((error) => {
+			console.error(error)
+		});
+	}, []);
+	return data
 }
 
 function Wallet() {
@@ -33,9 +140,8 @@ function Wallet() {
 			<>
 				<p>Your address is {signer._address}</p>
 				<p>Connected to {chain.name} network</p>
-				<button onClick={() => signMessage(signer, "I am Vadzim")}>Sign</button>
 				<WalletBalance></WalletBalance>
-				<ApiInfo></ApiInfo>
+				
 			</>
 		)
 	}
@@ -55,6 +161,60 @@ function Wallet() {
 	)
 }
 
+function getTokenBalance() {
+	const [data, setData] = useState(null);
+	const [isLoading, setLoading] = useState(false);
+	
+	useEffect(() => {
+		setLoading(true);
+		fetch('http://localhost:3001/api/requestBalance')
+		.then((res) => res.json())
+		.then((data) => {
+			setData(data);
+			setLoading(false);
+		})
+		.catch((error) => {
+			console.error(error)
+		});
+	}, []);
+	
+	if (isLoading) return <p>Loading...</p>;
+	if (!data) return <p>No token data</p>;
+	
+	return (
+		<div>
+			Token balance: {data}
+		</div>
+	);
+}
+
+function getVotes(){
+	const [data, setData] = useState(null);
+	const [isLoading, setLoading] = useState(false);
+	
+	useEffect(() => {
+		setLoading(true);
+		fetch('http://localhost:3001/api/requestVotes')
+		.then((res) => res.json())
+		.then((data) => {
+			setData(data);
+			setLoading(false);
+		})
+		.catch((error) => {
+			console.error(error)
+		});
+	}, []);
+	
+	if (isLoading) return <p>Loading...</p>;
+	if (!data) return <p>No votes data</p>;
+	
+	return (
+		<div>
+			Voting power: {data}
+		</div>
+	);
+}
+
 function signMessage(signer, message) {
 	signer.signMessage(message).then((signature) => {
 		console.log(signature)
@@ -69,6 +229,8 @@ function WalletBalance() {
 	return(
 		<>
 			<p>Balance is {data?.formatted} {data?.symbol}</p>
+			{getTokenBalance(signer)}
+			{getVotes()}
 		</>
 	)
 }
@@ -102,6 +264,7 @@ function RequestTokens() {
 	const [txData, setTxData] = useState(null);
 	const [isLoading, setLoading] = useState(false);
 	const { data: signer } = useSigner();
+	const [number, setNumber] = useState(0);
 
 
 	if (txData) {
@@ -123,7 +286,9 @@ function RequestTokens() {
 	return (
 		<>
 			<div>
-				<button onClick={() => requestTokens(signer, "signature", setLoading, setTxData)}>Request Tokens</button>
+				<h1>Request Tokens</h1>
+				<input type="number" value={number} onChange={(e) => setNumber(e.target.value)}></input>
+				<button onClick={() => requestTokens(signer, "signature", amount, setLoading, setTxData)}>Request</button>
 			</div>
 		</>
 	)
@@ -134,7 +299,7 @@ function requestTokens(signer, signature, setLoading, setTxData) {
 	const reqestOptions = {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ address: signer._address, signature: signature })
+		body: JSON.stringify({ address: signer._address, signature: signature, amount: amount })
 	};
 	fetch('http://localhost:3001/api/requestTokens', reqestOptions)
 		.then((res) => res.json())

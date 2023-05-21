@@ -94,3 +94,16 @@ line-height: 28px;
 	gap: 2rem;
 	margin-bottom: .5rem;
 }
+
+.components{
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 1rem;
+}
+
+.box{
+	border: 1px solid white;
+	border-radius: 12px;
+	padding: 20px;
+	text-align: center;
+}
