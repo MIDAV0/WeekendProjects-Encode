@@ -62,6 +62,11 @@ export class AppController {
     return await this.appService.getProposals();
   }
 
+  @Get('vote/')
+  async vote(@Query('proposalId') proposalId: number) {
+    return await this.appService.vote(proposalId);
+  }
+
   @Post('request-tokens')
   async requestTokens(@Body() body: RequestTokensDto) {
     return await this.appService.requestTokens(body.address, body.signature, body.amount)

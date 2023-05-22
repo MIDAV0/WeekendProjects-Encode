@@ -24,9 +24,9 @@ export default function InstructionsComponent() {
 				<div className={styles.box}>
 					<RequestTokens></RequestTokens>
 				</div>
-				<div className={styles.box}>
+				{/* <div className={styles.box}>
 					<Snapshot></Snapshot>
-				</div>
+				</div> */}
 				<div className={styles.box}>
 					<Delegate></Delegate>
 				</div>
@@ -61,59 +61,95 @@ function Vote() {
 }
 
 function Delegate() {
-	return (
-		<>
-			<h1>Delegate votes</h1>
-			<input type="text" placeholder="Address"></input>
-			<button>Delegate</button>
-			<p>----</p>
-			<button>Delegate to yourself</button>
-		</>
-	)
-}
-
-function Snapshot() {
 	const { data: signer } = useSigner();
-	const permitted = signer?._address in adminAddresses
-	const snapshot = getSnapshot();
-
-	const [snapShotData, setSnapShotData] = useState(null);
+	const [txData, setTxData] = useState(null);
 	const [isLoading, setLoading] = useState(false);
-
-	useEffect(() => {
-		setLoading(true);
-		fetch('http://localhost:3001/api/requestBalance')
-		.then((res) => res.json())
-		.then((dataTx) => {
-			setSnapShotData(dataTx);
-			setLoading(false);
-		})
-		.catch((error) => {
-			console.error(error)
-		});
-	}, []);
-
-	if (isLoading) return <p>Loading...</p>;
-	if (!snapShotData) return <p>No token data</p>;
+	const [delegateAddress, setDelegateAddress] = useState(null);
 	
 	return (
 		<>
-			<div>
-				<h1>Snapshot</h1>
-				{
-					snapShotData !== 1 ?
-					<p>Snapshot was made at block {snapShotData}</p> :
-					<button
-						disabled={!permitted}
-						onClick={() => {}}
-					>
-						{permitted ? "Snapshot" : "Not permitted"}
-					</button>
-				}
-			</div>
+			<h1>Delegate votes</h1>
+			<input type="text" placeholder="Delegate address" onChange={(e) => setDelegateAddress(e.target.value)}></input>
+			<button
+				onClick={() => delegateVotes(delegateAddress, setLoading, setTxData)}
+				disabled={isLoading}
+			>Delegate</button>
+			<p>----</p>
+			<button
+				onClick={() => delegateVotes(signer._address, setLoading, setTxData)}
+				disabled={isLoading}
+			>Delegate to yourself</button>
+			<p>----</p>
+			{ isLoading && 
+				<p>Delegating ...</p>
+			}
+			{ txData &&
+				<>
+					<p>Transaction sent</p>
+					<a href={"https://mumbai.polygonscan.com/tx/"+txData.hash} target="_blank">{txData.hash}</a>
+				</>
+			}
 		</>
 	)
 }
+
+function delegateVotes(address, setLoading, setData) {
+	setLoading(true);
+
+	fetch(`http://localhost:3001/delegate-votes?delegate=${address}`)
+	.then((res) => res.json())
+	.then((data) => {
+		setData(data);
+		setLoading(false);
+	})
+	.catch((error) => {
+		console.error(error)
+	});
+}
+
+
+// function Snapshot() {
+// 	const { data: signer } = useSigner();
+// 	const permitted = signer?._address in adminAddresses
+// 	const snapshot = getSnapshot();
+
+// 	const [snapShotData, setSnapShotData] = useState(null);
+// 	const [isLoading, setLoading] = useState(false);
+
+// 	useEffect(() => {
+// 		setLoading(true);
+// 		fetch('http://localhost:3001/api/requestBalance')
+// 		.then((res) => res.json())
+// 		.then((dataTx) => {
+// 			setSnapShotData(dataTx);
+// 			setLoading(false);
+// 		})
+// 		.catch((error) => {
+// 			console.error(error)
+// 		});
+// 	}, []);
+
+// 	if (isLoading) return <p>Loading...</p>;
+// 	if (!snapShotData) return <p>No token data</p>;
+	
+// 	return (
+// 		<>
+// 			<div>
+// 				<h1>Snapshot</h1>
+// 				{
+// 					snapShotData !== 1 ?
+// 					<p>Snapshot was made at block {snapShotData}</p> :
+// 					<button
+// 						disabled={!permitted}
+// 						onClick={() => {}}
+// 					>
+// 						{permitted ? "Snapshot" : "Not permitted"}
+// 					</button>
+// 				}
+// 			</div>
+// 		</>
+// 	)
+// }
 
 async function getSnapshot() {	
 	const [data, setData] = useState(null);
@@ -145,7 +181,6 @@ function Wallet() {
 			</>
 		)
 	}
-	
 	else if (isLoading) {
 		return (
 			<>
@@ -153,7 +188,6 @@ function Wallet() {
 			</>
 		)
 	}
-
 	return (
 		<>
 			<p>Connect your wallet</p>
@@ -161,16 +195,17 @@ function Wallet() {
 	)
 }
 
-function getTokenBalance() {
+function getTokenBalance(signer) {
 	const [data, setData] = useState(null);
 	const [isLoading, setLoading] = useState(false);
 	
 	useEffect(() => {
 		setLoading(true);
-		fetch('http://localhost:3001/api/requestBalance')
+		fetch(`http://localhost:3001/addressTokenBalance?address=${signer._address}`)
 		.then((res) => res.json())
 		.then((data) => {
-			setData(data);
+			const converted = Number(data.hex) / 10**18
+			setData(converted);
 			setLoading(false);
 		})
 		.catch((error) => {
@@ -188,16 +223,17 @@ function getTokenBalance() {
 	);
 }
 
-function getVotes(){
+function getVotes(signer){
 	const [data, setData] = useState(null);
 	const [isLoading, setLoading] = useState(false);
 	
 	useEffect(() => {
 		setLoading(true);
-		fetch('http://localhost:3001/api/requestVotes')
+		fetch(`http://localhost:3001/addressVotingPower?address=${signer._address}`)
 		.then((res) => res.json())
 		.then((data) => {
-			setData(data);
+			const converted = Number(data.hex) / 10**18
+			setData(converted);
 			setLoading(false);
 		})
 		.catch((error) => {
@@ -230,34 +266,9 @@ function WalletBalance() {
 		<>
 			<p>Balance is {data?.formatted} {data?.symbol}</p>
 			{getTokenBalance(signer)}
-			{getVotes()}
+			{getVotes(signer)}
 		</>
 	)
-}
-
-function ApiInfo() {
-	const [data, setData] = useState(null);
-	const [isLoading, setLoading] = useState(false);
-	
-	useEffect(() => {
-		setLoading(true);
-		fetch('https://random-data-api.com/api/v2/users')
-		.then((res) => res.json())
-		.then((data) => {
-			setData(data);
-			setLoading(false);
-		});
-	}, []);
-	
-	if (isLoading) return <p>Loading...</p>;
-	if (!data) return <p>No profile data</p>;
-	
-	return (
-		<div>
-			<h1>{data.username}</h1>
-			<p>{data.email}</p>
-		</div>
-	);
 }
 
 function RequestTokens() {
@@ -271,8 +282,7 @@ function RequestTokens() {
 		return (
 			<>
 				<p>Transaction sent</p>
-				<a href={"http://sepolia.etherscen.io/tx/"+txData.hash} target="_blank">{txData.hash}</a>
-				<p>Transaction hash: {txData.hash}</p>
+				<a href={"https://mumbai.polygonscan.com/tx/"+txData.hash} target="_blank">{txData.hash}</a>
 			</>
 		)
 	}
@@ -288,20 +298,20 @@ function RequestTokens() {
 			<div>
 				<h1>Request Tokens</h1>
 				<input type="number" value={number} onChange={(e) => setNumber(e.target.value)}></input>
-				<button onClick={() => requestTokens(signer, "signature", amount, setLoading, setTxData)}>Request</button>
+				<button onClick={() => requestTokens(signer, "signature", number, setLoading, setTxData)}>Request</button>
 			</div>
 		</>
 	)
 }
 
-function requestTokens(signer, signature, setLoading, setTxData) {
+function requestTokens(signer, signature, amount, setLoading, setTxData) {
 	setLoading(true);
 	const reqestOptions = {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ address: signer._address, signature: signature, amount: amount })
 	};
-	fetch('http://localhost:3001/api/requestTokens', reqestOptions)
+	fetch('http://localhost:3001/request-tokens', reqestOptions)
 		.then((res) => res.json())
 		.then((data) => {
 			setTxData(data);
