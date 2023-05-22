@@ -17,9 +17,14 @@ export class AppController {
     return this.appService.getLastBlock();
   }
 
-  @Get('contract-address')
-  getAddress(): string {
-    return this.appService.getAddress();
+  @Get('tokenContract-address')
+  getTokenAddress(): string {
+    return this.appService.getTokenAddress();
+  }
+
+  @Get('ballotContract-address')
+  getBallotAddress(): string {
+    return this.appService.getBallotAddress();
   }
 
   @Get('total-supply')
@@ -27,18 +32,23 @@ export class AppController {
     return this.appService.getTotalSupply();
   }
 
-  @Get('balance/:address') 
-  getBalanceOf(@Param('address') address: string) {
-    return this.appService.getBalanceOf(address);
+  @Get('addressTokenBalance/')
+  async getAddressTokenBalance(@Query('address') address: string) {
+    return await this.appService.getAddressTokenBalance(address);
   }
 
-  @Get('tramsaction-receipt/')
+  @Get('addressVotingPower/')
+  async getAddressVotingPower(@Query('address') address: string) {
+    return await this.appService.getAddressVotingPower(address);
+  }
+
+  @Get('transaction-receipt/')
   async getTransactionReceipt(@Query('hash') hash: string) {
     return await this.appService.getTransactionReceipt(hash);
   }
 
   @Post('request-tokens')
   async requestTokens(@Body() body: RequestTokensDto) {
-    return await this.appService.requestTokens(body.address, body.signature)
+    return await this.appService.requestTokens(body.address, body.signature, body.amount)
   }
 }

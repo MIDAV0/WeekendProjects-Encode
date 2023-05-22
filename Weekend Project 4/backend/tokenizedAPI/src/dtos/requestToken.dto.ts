@@ -5,4 +5,6 @@ export class RequestTokensDto {
     readonly address: string
     @ApiProperty()
     readonly signature: string
+    @ApiProperty()
+    readonly amount: number
 }
