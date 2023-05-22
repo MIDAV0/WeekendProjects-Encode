@@ -4,7 +4,7 @@ import { useSigner, useNetwork, useBalance } from "wagmi";
 import { useState, useEffect } from "react";
 
 const adminAddresses = [
-
+	"0x65315D8c187178bfFfA37C400f0C8842e0724D24"
 ]
 
 export default function InstructionsComponent() {
@@ -24,9 +24,9 @@ export default function InstructionsComponent() {
 				<div className={styles.box}>
 					<RequestTokens></RequestTokens>
 				</div>
-				{/* <div className={styles.box}>
+				<div className={styles.box}>
 					<Snapshot></Snapshot>
-				</div> */}
+				</div>
 				<div className={styles.box}>
 					<Delegate></Delegate>
 				</div>
@@ -52,13 +52,53 @@ function Winner() {
 }
 
 function Vote() {
+	const { data: signer } = useSigner();
+	const [isLoading, setLoading] = useState(false);
+	const [proposals, setProposals] = useState([]);
+	const [proposalId, setProposalId] = useState(null);
+
+	useEffect(() => {
+		fetch('http://localhost:3001/get-proposals')
+		.then((res) => res.json())
+		.then((data) => {
+			setProposals(data);
+			setLoading(false);
+		})
+	}, [])
+
+
 	return (
 		<>
 			<h1>Vote</h1>
-			<button>Vote</button>
+
+			{ proposals.map((index, proposal) => (
+					<div>
+						<p>{proposal} : {index}</p>
+					</div>
+			))}
+			<input type="number" placeholder="Proposal ID" onChange={(e) => setProposalId(e.target.value)}></input>
+			<button
+				onClick={() => castVote(proposalId, setLoading, setTxData)}
+				disabled={isLoading}
+			>Vote</button>
 		</>
 	)
 }
+
+function castVote(proposalId, setLoading, setData) {
+	setLoading(true);
+
+	fetch(`http://localhost:3001/vote?proposalId=${proposalId}`)
+	.then((res) => res.json())
+	.then((data) => {
+		setData(data);
+		setLoading(false);
+	})
+	.catch((error) => {
+		console.error(error)
+	});
+}
+
 
 function Delegate() {
 	const { data: signer } = useSigner();
@@ -108,63 +148,45 @@ function delegateVotes(address, setLoading, setData) {
 }
 
 
-// function Snapshot() {
-// 	const { data: signer } = useSigner();
-// 	const permitted = signer?._address in adminAddresses
-// 	const snapshot = getSnapshot();
+function Snapshot() {
+	const { data: signer } = useSigner();
+	const [txData, setTxData] = useState(null);
+	const [isLoading, setLoading] = useState(false);
+	const [delegateAddress, setDelegateAddress] = useState(null);
 
-// 	const [snapShotData, setSnapShotData] = useState(null);
-// 	const [isLoading, setLoading] = useState(false);
+	const permitted = adminAddresses.find((address) => address === signer?._address);
 
-// 	useEffect(() => {
-// 		setLoading(true);
-// 		fetch('http://localhost:3001/api/requestBalance')
-// 		.then((res) => res.json())
-// 		.then((dataTx) => {
-// 			setSnapShotData(dataTx);
-// 			setLoading(false);
-// 		})
-// 		.catch((error) => {
-// 			console.error(error)
-// 		});
-// 	}, []);
+	return (
+		<>
+			<div>
+				<h1>Snapshot</h1>
+				{
+					txData ?
+					<p>Snapshot was made at block {txData}</p> :
+					<button
+						disabled={!permitted || isLoading}
+						onClick={() => getSnapshot(setLoading, setTxData)}
+					>
+						{permitted ? "Snapshot" : "Not permitted"}
+					</button>
+				}
+			</div>
+		</>
+	)
+}
 
-// 	if (isLoading) return <p>Loading...</p>;
-// 	if (!snapShotData) return <p>No token data</p>;
-	
-// 	return (
-// 		<>
-// 			<div>
-// 				<h1>Snapshot</h1>
-// 				{
-// 					snapShotData !== 1 ?
-// 					<p>Snapshot was made at block {snapShotData}</p> :
-// 					<button
-// 						disabled={!permitted}
-// 						onClick={() => {}}
-// 					>
-// 						{permitted ? "Snapshot" : "Not permitted"}
-// 					</button>
-// 				}
-// 			</div>
-// 		</>
-// 	)
-// }
+function getSnapshot(setLoading, setData) {	
+	setLoading(true);
 
-async function getSnapshot() {	
-	const [data, setData] = useState(null);
-
-	useEffect(() => {
-		fetch('http://localhost:3001/api/requestSnapshot')
-		.then((res) => res.json())
-		.then((data) => {
-			setData(data);
-		})
-		.catch((error) => {
-			console.error(error)
-		});
-	}, []);
-	return data
+	fetch(`http://localhost:3001/make-snapshot`)
+	.then((res) => res.json())
+	.then((data) => {
+		setData(data);
+		setLoading(false);
+	})
+	.catch((error) => {
+		console.error(error)
+	});
 }
 
 function Wallet() {
@@ -194,6 +216,7 @@ function Wallet() {
 		</>
 	)
 }
+
 
 function getTokenBalance(signer) {
 	const [data, setData] = useState(null);
