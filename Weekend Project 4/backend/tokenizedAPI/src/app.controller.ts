@@ -47,6 +47,21 @@ export class AppController {
     return await this.appService.getTransactionReceipt(hash);
   }
 
+  @Get('delegate-votes/')
+  async delegateVotes(@Query('delegate') delegate: string) {
+    return await this.appService.delegateVotes(delegate);
+  }
+
+  @Get('make-snapshot')
+  async makeSnapshot() {
+    return await this.appService.makeSnapshot();
+  }
+
+  @Get('get-proposals')
+  async getProposals() {
+    return await this.appService.getProposals();
+  }
+
   @Post('request-tokens')
   async requestTokens(@Body() body: RequestTokensDto) {
     return await this.appService.requestTokens(body.address, body.signature, body.amount)

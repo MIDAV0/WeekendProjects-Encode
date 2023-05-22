@@ -69,4 +69,13 @@ contract TokenizedBallot {
     {
         winnerName_ = proposals[winningProposal()].name;
     }
+
+    function getProposalAtIndex(uint256 _index) external view returns(bytes32) {
+        require(proposals.length>_index, "Array out of bounds");
+        return proposals[_index].name;
+    }
+
+    function getProposalsLength() external view returns(uint256) {
+        return proposals.length;
+    }
 }
