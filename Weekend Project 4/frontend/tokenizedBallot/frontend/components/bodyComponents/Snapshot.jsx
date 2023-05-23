@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import getDataFromAPI from "../utils/fetcher";
 
 const adminAddresses = [
@@ -11,25 +11,42 @@ export default function Snapshot({ signer }) {
 
 	const permitted = adminAddresses.find((address) => address === signer?._address);
 
+	const [isBlockLoading, setBlockLoading] = useState(false);
+	const [blockNumber, setBlockNumber] = useState(null);
+
+	useEffect(() => {
+		getDataFromAPI(
+			"GET", 
+			{}, 
+			"http://localhost:3001/get-snapshot-block", 
+			setBlockLoading, 
+			setBlockNumber)
+	}, [])
+
 	return (
 		<>
 			<div>
 				<h1>Snapshot</h1>
+				{blockNumber && Number(blockNumber.hex) !== 1 &&
+					<p>Snapshot was made at block: {Number(blockNumber.hex)}</p>
+				}
 				{
-					txData ?
-					<p>Snapshot was made at block {txData}</p> :
 					<button
-						disabled={!permitted || isLoading}
+						disabled={
+							!permitted ||
+							isLoading ||
+							isBlockLoading 
+						}
 						onClick={() => 
-                            getDataFromAPI(
-                                "GET",
-                                {},
-                                `http://localhost:3001/make-snapshot`, 
-                                setLoading, 
-                                setTxData)
-                            }
+							getDataFromAPI(
+								"GET",
+								{},
+								`http://localhost:3001/make-snapshot`, 
+								setLoading, 
+								setTxData)
+							}
 					>
-						{permitted ? "Snapshot" : "Not permitted"}
+						Make Snapshot
 					</button>
 				}
 			</div>

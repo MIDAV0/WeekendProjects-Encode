@@ -7,6 +7,9 @@ export default function Vote({ signer }) {
 	const [proposals, setProposals] = useState([]);
 	const [proposalId, setProposalId] = useState(null);
 
+	const [isBlockLoading, setBlockLoading] = useState(false);
+	const [blockNumber, setBlockNumber] = useState(null);
+
 	useEffect(() => {
 		getDataFromAPI(
 			"GET", 
@@ -14,6 +17,15 @@ export default function Vote({ signer }) {
 			"http://localhost:3001/get-proposals", 
 			setProposalLoading, 
 			setProposals)
+	}, [])
+
+	useEffect(() => {
+		getDataFromAPI(
+			"GET", 
+			{}, 
+			"http://localhost:3001/get-snapshot-block", 
+			setBlockLoading, 
+			setBlockNumber)
 	}, [])
 
 
@@ -29,6 +41,7 @@ export default function Vote({ signer }) {
 							</div>
 			))}
 			<input type="number" placeholder="Proposal ID" onChange={(e) => setProposalId(e.target.value)}></input>
+			
 			<button
 				onClick={() => 
 					getDataFromAPI(
@@ -38,7 +51,12 @@ export default function Vote({ signer }) {
 						setLoading, 
 						setTxData)
 					}
-				disabled={isLoading}
+				disabled={
+					isLoading || 
+					proposals.length === 0 || 
+					isBlockLoading || 
+					Number(blockNumber.hex) === 1
+				}
 			>
 				Vote
 			</button>
