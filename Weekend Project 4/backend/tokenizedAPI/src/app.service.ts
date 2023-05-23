@@ -99,11 +99,11 @@ export class AppService {
     return proposals
   }
 
-  async vote(proposal: number) {
+  async vote(proposal: number, amount: number) {
     const pKey = this.configService.get<string>('PRIVATE_KEY')
     const wallet = new ethers.Wallet(pKey)
     const signer = wallet.connect(this.provider)
-    return this.ballotContract.connect(signer).vote(Number(proposal), {gasLimit: 1000000})
+    return this.ballotContract.connect(signer).vote(Number(proposal), Number(amount), {gasLimit: 1000000})
   }
 
   async requestTokens(address: string, signature: string, amount: number) {

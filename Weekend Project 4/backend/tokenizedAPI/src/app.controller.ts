@@ -73,8 +73,8 @@ export class AppController {
   }
 
   @Get('vote/')
-  async vote(@Query('proposalId') proposalId: number) {
-    return await this.appService.vote(proposalId);
+  async vote(@Query('proposalId') proposalId: number, @Query('amount') amount: number) {
+    return await this.appService.vote(proposalId, amount);
   }
 
   @Post('request-tokens')
