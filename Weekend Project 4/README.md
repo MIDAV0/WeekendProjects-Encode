@@ -9,6 +9,12 @@ Add .env file in backend with:
 
 Contracts depoyed on Polygon Mumbai Testnets
 
+frontend install:
+``` yarn install```
+
+backend install:
+``` npm install```
+
 
 frontend init:
 ``` npx create-web3-dapp@latest```
