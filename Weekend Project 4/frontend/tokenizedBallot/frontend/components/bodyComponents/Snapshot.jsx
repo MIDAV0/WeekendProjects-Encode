@@ -1,8 +1,13 @@
-export default function Snapshot() {
-	const { data: signer } = useSigner();
+import { useState } from "react";
+import getDataFromAPI from "../utils/fetcher";
+
+const adminAddresses = [
+	"0x65315D8c187178bfFfA37C400f0C8842e0724D24"
+]
+
+export default function Snapshot({ signer }) {
 	const [txData, setTxData] = useState(null);
 	const [isLoading, setLoading] = useState(false);
-	const [delegateAddress, setDelegateAddress] = useState(null);
 
 	const permitted = adminAddresses.find((address) => address === signer?._address);
 
@@ -15,7 +20,14 @@ export default function Snapshot() {
 					<p>Snapshot was made at block {txData}</p> :
 					<button
 						disabled={!permitted || isLoading}
-						onClick={() => getSnapshot(setLoading, setTxData)}
+						onClick={() => 
+                            getDataFromAPI(
+                                "GET",
+                                {},
+                                `http://localhost:3001/make-snapshot`, 
+                                setLoading, 
+                                setTxData)
+                            }
 					>
 						{permitted ? "Snapshot" : "Not permitted"}
 					</button>
@@ -23,18 +35,4 @@ export default function Snapshot() {
 			</div>
 		</>
 	)
-}
-
-function getSnapshot(setLoading, setData) {	
-	setLoading(true);
-
-	fetch(`http://localhost:3001/make-snapshot`)
-	.then((res) => res.json())
-	.then((data) => {
-		setData(data);
-		setLoading(false);
-	})
-	.catch((error) => {
-		console.error(error)
-	});
 }

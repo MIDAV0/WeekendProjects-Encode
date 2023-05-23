@@ -1,5 +1,7 @@
-export default function Vote() {
-	const { data: signer } = useSigner();
+import { useState, useEffect } from "react";
+import getDataFromAPI from "../utils/fetcher";
+
+export default function Vote({ signer }) {
 	const [isLoading, setLoading] = useState(false);
 	const [proposals, setProposals] = useState([]);
 	const [proposalId, setProposalId] = useState(null);
@@ -25,24 +27,18 @@ export default function Vote() {
 			))}
 			<input type="number" placeholder="Proposal ID" onChange={(e) => setProposalId(e.target.value)}></input>
 			<button
-				onClick={() => castVote(proposalId, setLoading, setTxData)}
+				onClick={() => 
+					getDataFromAPI(
+						"GET",
+						{},
+						`http://localhost:3001/vote?proposalId=${proposalId}`, 
+						setLoading, 
+						setTxData)
+					}
 				disabled={isLoading}
-			>Vote</button>
+			>
+				Vote
+			</button>
 		</>
 	)
-}
-
-
-function castVote(proposalId, setLoading, setData) {
-	setLoading(true);
-
-	fetch(`http://localhost:3001/vote?proposalId=${proposalId}`)
-	.then((res) => res.json())
-	.then((data) => {
-		setData(data);
-		setLoading(false);
-	})
-	.catch((error) => {
-		console.error(error)
-	});
 }

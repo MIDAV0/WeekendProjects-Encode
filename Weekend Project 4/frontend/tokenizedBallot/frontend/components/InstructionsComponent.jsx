@@ -1,7 +1,6 @@
 import styles from "../styles/InstructionsComponent.module.css";
 import Router, { useRouter } from "next/router";
-import { useSigner, useNetwork, useBalance } from "wagmi";
-import { useState, useEffect } from "react";
+import { useSigner, useNetwork } from "wagmi";
 import Vote from "./bodyComponents/Vote";
 import Delegate from "./bodyComponents/Delegate";
 import Snapshot from "./bodyComponents/Snapshot";
@@ -9,12 +8,11 @@ import Wallet from "./bodyComponents/Wallet";
 import RequestTokens from "./bodyComponents/RequestTokens";
 import Winner from "./bodyComponents/Winner";
 
-const adminAddresses = [
-	"0x65315D8c187178bfFfA37C400f0C8842e0724D24"
-]
-
 export default function InstructionsComponent() {
 	const router = useRouter();
+	const { data: signer, isLoading } = useSigner();
+	const { chain, chains } = useNetwork();
+
 	return (
 		<div className={styles.container}>
 			<header className={styles.header_container}>
@@ -25,31 +23,39 @@ export default function InstructionsComponent() {
 
 			<div className={styles.components}>
 				<div className={styles.box}>
-					<Wallet></Wallet>
+					<Wallet
+						signer={signer}
+						isLoadingWallet={isLoading}
+						chain={chain}
+						chains={chains}
+					/>
 				</div>
 				<div className={styles.box}>
-					<RequestTokens></RequestTokens>
+					<RequestTokens
+						signer={signer}
+					/>
 				</div>
 				<div className={styles.box}>
-					<Snapshot></Snapshot>
+					<Snapshot
+						signer={signer}
+					/>
 				</div>
 				<div className={styles.box}>
-					<Delegate></Delegate>
+					<Delegate
+						signer={signer}
+					/>
 				</div>
 				<div className={styles.box}>
-					<Vote></Vote>
+					<Vote
+						signer={signer}
+					/>
 				</div>
 				<div className={styles.box}>
-					<Winner></Winner>
+					<Winner
+						signer={signer}
+					/>
 				</div>
 			</div>
 		</div>
 	);
-}
-
-
-function signMessage(signer, message) {
-	signer.signMessage(message).then((signature) => {
-		console.log(signature)
-	}, (error => console.error(error)))
 }

@@ -1,5 +1,7 @@
-export default function Delegate() {
-	const { data: signer } = useSigner();
+import getDataFromAPI from "../utils/fetcher";
+import { useState } from "react";
+
+export default function Delegate({ signer }) {
 	const [txData, setTxData] = useState(null);
 	const [isLoading, setLoading] = useState(false);
 	const [delegateAddress, setDelegateAddress] = useState(null);
@@ -14,10 +16,21 @@ export default function Delegate() {
 			>Delegate</button>
 			<p>----</p>
 			<button
-				onClick={() => delegateVotes(signer._address, setLoading, setTxData)}
+				onClick={() => 
+					getDataFromAPI(
+						"GET",
+						{},
+						`http://localhost:3001/delegate-votes?delegate=${signer._address}`, 
+						setLoading, 
+						setTxData)
+					}
 				disabled={isLoading}
-			>Delegate to yourself</button>
+			>
+				Delegate to yourself
+			</button>
+
 			<p>----</p>
+			
 			{ isLoading && 
 				<p>Delegating ...</p>
 			}
@@ -29,18 +42,4 @@ export default function Delegate() {
 			}
 		</>
 	)
-}
-
-function delegateVotes(address, setLoading, setData) {
-	setLoading(true);
-
-	fetch(`http://localhost:3001/delegate-votes?delegate=${address}`)
-	.then((res) => res.json())
-	.then((data) => {
-		setData(data);
-		setLoading(false);
-	})
-	.catch((error) => {
-		console.error(error)
-	});
 }

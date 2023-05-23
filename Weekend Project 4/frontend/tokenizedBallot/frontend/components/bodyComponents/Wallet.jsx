@@ -1,33 +1,23 @@
-export default function Wallet() {
-	const { data: signer, isError, isLoading } = useSigner();
-	const { chain, chains } = useNetwork();
+import { useBalance } from "wagmi";
+import { useState, useEffect } from "react";
 
+export default function Wallet({ signer, isLoadingWallet, chain, chains}) {
 	if (signer) {
 		return (
 			<>
 				<p>Your address is {signer._address}</p>
 				<p>Connected to {chain.name} network</p>
-				<WalletBalance></WalletBalance>
-				
+				<WalletBalance
+                    signer={signer}
+                />
 			</>
 		)
 	}
-	else if (isLoading) {
-		return (
-			<>
-				<p>Loading...</p>
-			</>
-		)
-	}
-	return (
-		<>
-			<p>Connect your wallet</p>
-		</>
-	)
+	if (isLoadingWallet) return <p>Loading...</p>
+	return <p>Connect your wallet</p>
 }
 
-function WalletBalance() {
-	const { data: signer } = useSigner();
+function WalletBalance({ signer }) {
 	const { data, isError, isLoading } = useBalance({address: signer._address});
 	if (isError) return <p>Error</p>
 	if (isLoading) return <p>Loading...</p>
