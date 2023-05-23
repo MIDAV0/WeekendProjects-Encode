@@ -62,6 +62,11 @@ export class AppController {
     return await this.appService.getSnapshotBlock();
   }
 
+  @Get('winning-proposal')
+  async getWinningProposal() {
+    return await this.appService.getWinningProposal();
+  }
+
   @Get('get-proposals')
   async getProposals() {
     return await this.appService.getProposals();

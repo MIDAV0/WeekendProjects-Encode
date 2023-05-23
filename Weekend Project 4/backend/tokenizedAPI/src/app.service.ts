@@ -73,6 +73,13 @@ export class AppService {
     return this.ballotContract.targetBlockNumber()
   }
 
+  async getWinningProposal() {
+    const pKey = this.configService.get<string>('PRIVATE_KEY')
+    const wallet = new ethers.Wallet(pKey)
+    const signer = wallet.connect(this.provider)
+    return this.ballotContract.connect(signer).winnerName()
+  }
+
   async getProposalLength() {
     return this.ballotContract.getProposalsLength()
   }
