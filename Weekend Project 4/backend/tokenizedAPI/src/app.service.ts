@@ -69,6 +69,10 @@ export class AppService {
     return this.ballotContract.connect(signer).makeSnapshot({gasLimit: 1000000})
   }
 
+  async getSnapshotBlock() {
+    return this.ballotContract.targetBlockNumber()
+  }
+
   async getProposalLength() {
     return this.ballotContract.getProposalsLength()
   }

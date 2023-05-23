@@ -57,6 +57,11 @@ export class AppController {
     return await this.appService.makeSnapshot();
   }
 
+  @Get('get-snapshot-block')
+  async getSnapshot() {
+    return await this.appService.getSnapshotBlock();
+  }
+
   @Get('get-proposals')
   async getProposals() {
     return await this.appService.getProposals();
