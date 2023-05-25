@@ -10,7 +10,7 @@ export default function getDataFromAPI(method, requestBody, url, setLoading, set
         fetch(url, reqestOptions)
             .then((res) => res.json())
             .then((data) => {
-                setTxData(data);
+                setData(data);
                 setLoading(false);
         })
     } else if (method == "GET") {

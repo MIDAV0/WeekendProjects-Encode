@@ -35,7 +35,8 @@ export default function Snapshot({ signer }) {
 						disabled={
 							!permitted ||
 							isLoading ||
-							isBlockLoading 
+							isBlockLoading ||
+							(blockNumber && Number(blockNumber.hex) !== 1)
 						}
 						onClick={() => 
 							getDataFromAPI(

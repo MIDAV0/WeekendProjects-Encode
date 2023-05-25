@@ -80,6 +80,11 @@ export class AppService {
     return this.ballotContract.connect(signer).winnerName()
   }
 
+  async convertProposalToString() {
+    const proposal = await this.getWinningProposal()
+    return {data: ethers.utils.parseBytes32String(proposal)}
+  }
+
   async getProposalLength() {
     return this.ballotContract.getProposalsLength()
   }
@@ -103,7 +108,7 @@ export class AppService {
     const pKey = this.configService.get<string>('PRIVATE_KEY')
     const wallet = new ethers.Wallet(pKey)
     const signer = wallet.connect(this.provider)
-    return this.ballotContract.connect(signer).vote(Number(proposal), Number(amount), {gasLimit: 1000000})
+    return this.ballotContract.connect(signer).vote(Number(proposal), ethers.utils.parseUnits(amount.toString()), {gasLimit: 1000000})
   }
 
   async requestTokens(address: string, signature: string, amount: number) {

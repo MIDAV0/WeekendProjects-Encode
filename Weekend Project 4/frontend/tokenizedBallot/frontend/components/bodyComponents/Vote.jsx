@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import getDataFromAPI from "../utils/fetcher";
+import { ethers } from "ethers";
 
 export default function Vote({ signer }) {
 	const [isLoading, setLoading] = useState(false);
@@ -44,7 +45,7 @@ export default function Vote({ signer }) {
 			{ isProposalLoading ? <p>Loading proposals ...</p> :
 				proposals.length === 0 ? <p>No proposals</p> :
 					proposals.map((index, proposal) => (
-							<div>
+							<div key={proposal}>
 								<p>{proposal} : {index}</p>
 							</div>
 			))}
@@ -52,21 +53,12 @@ export default function Vote({ signer }) {
 			<input type="number" placeholder="Amount" onChange={(e) => setVoteAmount(e.target.value)}></input>
 			<button
 				onClick={() => 
-					{
-						useEffect(() => {
-							getDataFromAPI(
-								"GET",
-								{},
-								`http://localhost:3001/vote?proposalId=${proposalId}&amount=${voteAmount}`, 
-								setLoading, 
-								setTxData)
-						}, [])
-						if (txData) {
-							votes.push({signerAddress, proposalId, voteAmount})
-						}
-						setVoteAmount(0)
-						setProposalId(null)
-					}
+						getDataFromAPI(
+							"GET",
+							{},
+							`http://localhost:3001/vote?proposalId=${proposalId}&amount=${voteAmount}`, 
+							setLoading, 
+							setTxData)
 				}
 				disabled={
 					isLoading || 

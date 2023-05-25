@@ -33,8 +33,8 @@ export default function RequestTokens({ signer }) {
                             "POST", 
                             { 
                                 address: signer._address, 
-                                signature: signature, 
-                                amount: amount 
+                                signature: "signature", 
+                                amount: number 
                             }, 
                             'http://localhost:3001/request-tokens', 
                             setLoading, 
