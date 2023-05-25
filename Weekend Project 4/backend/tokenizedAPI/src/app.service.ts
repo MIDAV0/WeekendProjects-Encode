@@ -77,28 +77,26 @@ export class AppService {
     const pKey = this.configService.get<string>('PRIVATE_KEY')
     const wallet = new ethers.Wallet(pKey)
     const signer = wallet.connect(this.provider)
-    return this.ballotContract.connect(signer).winnerName()
-  }
-
-  async convertProposalToString() {
-    const proposal = await this.getWinningProposal()
-    return {data: ethers.utils.parseBytes32String(proposal)}
-  }
-
-  async getProposalLength() {
-    return this.ballotContract.getProposalsLength()
-  }
-
-  async getProposalAtIndex(index: number) {
-    return this.ballotContract.getProposalAtIndex(index)
+    let proposal;
+    await this.ballotContract.connect(signer).winnerName()
+        .then((result) => {
+          proposal = {data: ethers.utils.parseBytes32String(result)}
+        })
+    return proposal
   }
 
   async getProposals() {
     const proposals = []
-    const proposalsLength = await this.getProposalLength()
+    const proposalsLength = await this.ballotContract.getProposalsLength()
+        .then((result) => {
+          return Number(result._hex)
+        })
 
-    for (let i = 0; i < Number(proposalsLength._hex); i++) {
-      const proposal = await this.getProposalAtIndex(i)
+    for (let i = 0; i < proposalsLength; i++) {
+      const proposal = await this.ballotContract.getProposalAtIndex(i)
+        .then((result) => {
+          return result
+        })
       proposals.push(ethers.utils.parseBytes32String(proposal))
     }
     return proposals

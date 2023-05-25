@@ -63,8 +63,8 @@ export class AppController {
   }
 
   @Get('winning-proposal')
-  async convertProposalToString() {
-    return await this.appService.convertProposalToString();
+  async getWinningProposal() {
+    return await this.appService.getWinningProposal();
   }
 
   @Get('get-proposals')
