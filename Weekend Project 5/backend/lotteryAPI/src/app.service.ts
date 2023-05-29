@@ -1,30 +1,33 @@
 import { Injectable } from '@nestjs/common';
 import { Contract, ethers } from 'ethers';
-import * as tokenJson from "./assets/MyERC20Votes.json"
-import * as ballotJson from "./assets/TokenizedBallot.json"
 import { ConfigService } from '@nestjs/config';
-import { parse } from 'path';
-import { get } from 'http';
+import lotteryJson from './contracts/Lottery.json';
+import lotteryTokenJson from './contracts/LotteryToken.json';
 
 @Injectable()
 export class AppService {
   provider: ethers.providers.BaseProvider;
-  tokenContract: ethers.Contract;
-  ballotContract: ethers.Contract;
+  lotteryTokenContract: ethers.Contract;
+  lotteryContract: ethers.Contract;
+  signer: ethers.Signer;
 
   constructor(private configService: ConfigService) {
     const apiKey = this.configService.get<string>("ALCHEMY_API_KEY_HTTP")
     this.provider = new ethers.providers.JsonRpcProvider(apiKey)
-    this.tokenContract = new Contract(this.getTokenAddress(), tokenJson.abi, this.provider)
-    this.ballotContract = new Contract(this.getBallotAddress(), ballotJson.abi, this.provider)
-  }
-
-  getHello(): string {
-    return 'Hello World!';
+    this.lotteryTokenContract = new Contract(this.getTokenAddress(), lotteryTokenJson.abi, this.provider) 
+    this.lotteryContract = new Contract(this.getLotteryAddress(), lotteryJson.abi, this.provider)
+    const pKey = this.configService.get<string>('PRIVATE_KEY')
+    const wallet = new ethers.Wallet(pKey)
+    this.signer = wallet.connect(this.provider)
   }
 
   getLastBlock(): Promise<ethers.providers.Block> {
     return this.provider.getBlock("latest")
+  }
+
+  getLotteryAddress() {
+    const lotteryAddress = this.configService.get<string>('LOTTERY_ADDRESS');
+    return lotteryAddress
   }
 
   getTokenAddress() {
@@ -32,87 +35,83 @@ export class AppService {
     return tokenAddress
   }
 
-  getBallotAddress() {
-    const ballotAddress = this.configService.get<string>('BALLOT_ADDRESS');
-    return ballotAddress
-  }
 
-  getTotalSupply() {
-    return this.tokenContract.totalSupply()
-  }
-
-  getAddressTokenBalance(address: string) {
-    return this.tokenContract.balanceOf(address);
-  }
-
-  getAddressVotingPower(address: string) {
-    return this.tokenContract.getVotes(address);
-  }
-
-  async getTransactionReceipt(hash: string) {
-    const tx = await this.provider.getTransaction(hash);
-    const receipt = await tx.wait();
-    return receipt;
-  }
-
-  async delegateVotes(delegate: string) {
-    const pKey = this.configService.get<string>('PRIVATE_KEY')
-    const wallet = new ethers.Wallet(pKey)
-    const signer = wallet.connect(this.provider)
-    return this.tokenContract.connect(signer).delegate(delegate, {gasLimit: 1000000})
-  }
-
-  async makeSnapshot() {
-    const pKey = this.configService.get<string>('PRIVATE_KEY')
-    const wallet = new ethers.Wallet(pKey)
-    const signer = wallet.connect(this.provider)
-    return this.ballotContract.connect(signer).makeSnapshot({gasLimit: 1000000})
-  }
-
-  async getSnapshotBlock() {
-    return this.ballotContract.targetBlockNumber()
-  }
-
-  async getWinningProposal() {
-    const pKey = this.configService.get<string>('PRIVATE_KEY')
-    const wallet = new ethers.Wallet(pKey)
-    const signer = wallet.connect(this.provider)
-    let proposal;
-    await this.ballotContract.connect(signer).winnerName()
-        .then((result) => {
-          proposal = {data: ethers.utils.parseBytes32String(result)}
-        })
-    return proposal
-  }
-
-  async getProposals() {
-    const proposals = []
-    const proposalsLength = await this.ballotContract.getProposalsLength()
-        .then((result) => {
-          return Number(result._hex)
-        })
-
-    for (let i = 0; i < proposalsLength; i++) {
-      const proposal = await this.ballotContract.getProposalAtIndex(i)
-        .then((result) => {
-          return result
-        })
-      proposals.push(ethers.utils.parseBytes32String(proposal))
+  // check lottery state
+  getLotteryState() {
+    const state = this.lotteryContract.betsOpen()
+    const closingDate = this.lotteryContract.betsClosingTime()
+    return {
+      state,
+      closingDate: new Date(closingDate.toNumber() * 1000)
     }
-    return proposals
   }
 
-  async vote(proposal: number, amount: number) {
-    const pKey = this.configService.get<string>('PRIVATE_KEY')
-    const wallet = new ethers.Wallet(pKey)
-    const signer = wallet.connect(this.provider)
-    return this.ballotContract.connect(signer).vote(Number(proposal), ethers.utils.parseUnits(amount.toString()), {gasLimit: 1000000})
+  // open bets
+  async openBets(duration: string) {
+      const currentBlock = this.provider.getBlock("latest");
+      return this.lotteryContract.connect(this.signer).openBets(currentBlock.timestamp + Number(duration));
+    }
+
+  // purchase tokens
+  async purchaseTokens(amount: string) {
+    const tokenRatio = await this.lotteryContract.tokenRatio()
+    return this.lotteryContract.connect(this.signer).purchaseTokens({
+      value: ethers.utils.parseEther(amount).div(tokenRatio),
+    })
   }
 
-  async requestTokens(address: string, signature: string, amount: number) {
-    const pKey = this.configService.get<string>('PRIVATE_KEY')
-    const wallet = new ethers.Wallet(pKey)
-    const signer = wallet.connect(this.provider)
-    return this.tokenContract.connect(signer).mint(address, ethers.utils.parseUnits(amount.toString()), {gasLimit: 1000000})
+  // display token balance
+  async getTokenBalance(address) {
+    const balance = await this.lotteryTokenContract.balanceOf(address)
+                                                          .then((balanceBN) => balanceBN)
+    return ethers.utils.formatEther(balance);
+  }
+
+  // bet (number of times)
+  async bet(numberOfTimes: string) {
+    return this.lotteryTokenContract
+      .connect(this.signer)
+      .approve(this.getLotteryAddress(), ethers.constants.MaxUint256)
+      .then((token) => {
+        return this.lotteryContract.connect(this.signer).betMany(numberOfTimes) 
+      })
+  }
+  // close lottery
+  async closeLottery() {
+    return this.lotteryContract.connect(this.signer).closeLottery()
+  }
+
+  // display prize
+  async displayPrize(address: string) {
+    const prize = await this.lotteryContract.prize(address)
+    return ethers.utils.formatEther(prize);
+  }
+
+  // claim prize (amount)
+  claimPrize(amount: string) {
+    return this.lotteryContract.connect(this.signer).prizeWithdraw(ethers.utils.parseEther(amount))
+  }
+
+  // display owner pool
+  async getOwnerPool() {
+    const pool = await this.lotteryContract.ownerPool()
+    return ethers.utils.formatEther(pool);
+  }
+
+  // withdraw tokens from pool (amount)
+  withdrawFromPool(amount: string) {
+    return this.lotteryContract.connect(this.signer).ownerWithdraw(ethers.utils.parseEther(amount))
+  }
+
+  // burn tokens (amount)
+  burnTokens(amount: string) {
+    return this.lotteryTokenContract
+    .connect(this.signer)
+    .approve(this.getLotteryAddress(), ethers.constants.MaxUint256)
+    .then((token) => {
+      return this.lotteryContract
+        .connect(this.signer)
+        .returnTokens(ethers.utils.parseEther(amount)) 
+    })
   }
 }
