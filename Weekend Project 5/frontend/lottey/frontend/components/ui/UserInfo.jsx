@@ -24,11 +24,10 @@ function getLotteryTokens() {
     
     useEffect(() => {
         setLoading(true);
-        fetch(`http://localhost:3001/`)
+        fetch(`http://localhost:3001/token-balance`)
         .then((res) => res.json())
         .then((data) => {
-            const converted = Number(data.hex) / 10**18
-            setData(converted);
+            setData(data);
             setLoading(false);
         })
         .catch((error) => {
@@ -37,7 +36,6 @@ function getLotteryTokens() {
     }, []);
     
     if (isLoading) return "Loading...";
-    if (!data) return "No token data";
-    
-    return {data};
+    if (!data && data !== 0) return "No token data";
+    return data;
 }

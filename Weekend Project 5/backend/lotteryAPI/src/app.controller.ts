@@ -28,9 +28,9 @@ export class AppController {
     return await this.appService.purchaseTokens(amount);
   }
 
-  @Get('token-balance/')
-  async getTokenBalance(@Query('address') address: string) {
-    return await this.appService.getTokenBalance(address);
+  @Get('token-balance')
+  async getTokenBalance() {
+    return await this.appService.getTokenBalance();
   }
 
   @Get('bet/')

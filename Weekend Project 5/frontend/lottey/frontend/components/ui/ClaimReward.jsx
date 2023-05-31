@@ -13,13 +13,13 @@ export default function ClaimReward({ signer, isLoadingWallet, chain}) {
         getDataFromAPI(
             "GET",
             {},
-            `http://localhost:3001/claim`,
+            `http://localhost:3001/display-prize?address=${signer?._address}`,
             setLoading,
             setData
         )
     }, []);
 
-    console.log(data)
+
 
     return (
         <>
@@ -29,22 +29,28 @@ export default function ClaimReward({ signer, isLoadingWallet, chain}) {
                     {!isLoading ? 
                         <p>Loading rewards...</p>
                         : 
-                            data ?
+                            data || data === 0 ?
                             <p>Available rewards: <span className="font-bold">{data}</span></p>
                             : 
                             <p>No rewards available</p>
                     }
-                    <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" onClick={claimReward}>Claim</button>
+                    <button 
+                        className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" 
+                        onClick={claimRewards(data)}
+                        disabled={!data}    
+                    >
+                        Claim
+                        </button>
                 </div>
             </div>
         </>
     )
     
-    function claimReward() {
-        fetch(`http://localhost:3001/claim`)
+    function claimRewards(amount) {
+        fetch(`http://localhost:3001/claim-prize?amount=${amount}`)
         .then((res) => res.json())
         .then((data) => {
-            console.log(data);
+            //console.log(data);
         })
         .catch((error) => {
             console.error(error)

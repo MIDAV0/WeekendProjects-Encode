@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Contract, ethers } from 'ethers';
 import { ConfigService } from '@nestjs/config';
-import lotteryJson from './contracts/Lottery.json';
-import lotteryTokenJson from './contracts/LotteryToken.json';
+import * as lotteryJson from './assets/Lottery.json';
+import * as lotteryTokenJson from './assets/LotteryToken.json';
+import { parse } from 'path';
+import { get } from 'http';
 
 @Injectable()
 export class AppService {
@@ -25,46 +27,46 @@ export class AppService {
     return this.provider.getBlock("latest")
   }
 
-  getLotteryAddress() {
+  getLotteryAddress(): string {
     const lotteryAddress = this.configService.get<string>('LOTTERY_ADDRESS');
     return lotteryAddress
   }
 
-  getTokenAddress() {
+  getTokenAddress(): string {
     const tokenAddress = this.configService.get<string>('TOKEN_ADDRESS');
     return tokenAddress
   }
 
 
   // check lottery state
-  getLotteryState() {
-    const state = this.lotteryContract.betsOpen()
-    const closingDate = this.lotteryContract.betsClosingTime()
+  async getLotteryState() {
+    const state = await this.lotteryContract.betsOpen()
+    const closingDate = await this.lotteryContract.betsClosingTime()
     return {
       state,
-      closingDate: new Date(closingDate.toNumber() * 1000)
+      closingDate: new Date(closingDate * 1000),
     }
   }
 
   // open bets
   async openBets(duration: string) {
       const currentBlock = this.provider.getBlock("latest");
-      return this.lotteryContract.connect(this.signer).openBets(currentBlock.timestamp + Number(duration));
-    }
+      return this.lotteryContract.connect(this.signer).openBets((await currentBlock).timestamp + Number(duration));
+  }
 
   // purchase tokens
   async purchaseTokens(amount: string) {
-    const tokenRatio = await this.lotteryContract.tokenRatio()
-    return this.lotteryContract.connect(this.signer).purchaseTokens({
+    const tokenRatio = await this.lotteryContract.purchaseRatio()
+    const data = this.lotteryContract.connect(this.signer).purchaseTokens({
       value: ethers.utils.parseEther(amount).div(tokenRatio),
-    })
+    }).then((tx) => tx).catch((err) => err)
+    return data
   }
 
   // display token balance
-  async getTokenBalance(address) {
-    const balance = await this.lotteryTokenContract.balanceOf(address)
-                                                          .then((balanceBN) => balanceBN)
-    return ethers.utils.formatEther(balance);
+  async getTokenBalance() {
+   return await this.lotteryTokenContract.balanceOf(this.signer.getAddress())
+                                                          .then((balance) => ethers.utils.formatEther(balance))
   }
 
   // bet (number of times)
@@ -73,34 +75,33 @@ export class AppService {
       .connect(this.signer)
       .approve(this.getLotteryAddress(), ethers.constants.MaxUint256)
       .then((token) => {
-        return this.lotteryContract.connect(this.signer).betMany(numberOfTimes) 
+        this.lotteryContract.connect(this.signer).betMany(numberOfTimes).then((tx) => tx).catch((err) => err)
       })
   }
+
   // close lottery
   async closeLottery() {
-    return this.lotteryContract.connect(this.signer).closeLottery()
+    return await this.lotteryContract.connect(this.signer).closeLottery().then((tx) => tx).catch((err) => err)
   }
 
   // display prize
   async displayPrize(address: string) {
-    const prize = await this.lotteryContract.prize(address)
-    return ethers.utils.formatEther(prize);
+    return await this.lotteryContract.prize(address).then((prize) => prize).catch((err) => err)
   }
 
   // claim prize (amount)
-  claimPrize(amount: string) {
-    return this.lotteryContract.connect(this.signer).prizeWithdraw(ethers.utils.parseEther(amount))
+  async claimPrize(amount: string) {
+    return this.lotteryContract.connect(this.signer).prizeWithdraw(ethers.utils.parseEther(amount)).then((tx) => tx).catch((err) => err)
   }
 
   // display owner pool
   async getOwnerPool() {
-    const pool = await this.lotteryContract.ownerPool()
-    return ethers.utils.formatEther(pool);
+    return await this.lotteryContract.ownerPool().then((pool) => ethers.utils.formatEther(pool))
   }
 
   // withdraw tokens from pool (amount)
   withdrawFromPool(amount: string) {
-    return this.lotteryContract.connect(this.signer).ownerWithdraw(ethers.utils.parseEther(amount))
+    return this.lotteryContract.connect(this.signer).ownerWithdraw(ethers.utils.parseEther(amount)).then((tx) => tx).catch((err) => err)
   }
 
   // burn tokens (amount)
