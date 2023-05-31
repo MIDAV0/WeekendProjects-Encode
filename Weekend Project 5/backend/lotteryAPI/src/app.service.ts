@@ -65,8 +65,11 @@ export class AppService {
 
   // display token balance
   async getTokenBalance() {
-   return await this.lotteryTokenContract.balanceOf(this.signer.getAddress())
+    const value = await this.lotteryTokenContract.balanceOf(this.signer.getAddress())
                                                           .then((balance) => ethers.utils.formatEther(balance))
+    return {
+      value,
+    }
   }
 
   // bet (number of times)
@@ -86,7 +89,10 @@ export class AppService {
 
   // display prize
   async displayPrize(address: string) {
-    return await this.lotteryContract.prize(address).then((prize) => prize).catch((err) => err)
+    const value =  await this.lotteryContract.prize(address).then((prize) => ethers.utils.formatEther(prize)).catch((err) => err)
+    return {
+      value,
+    }
   }
 
   // claim prize (amount)

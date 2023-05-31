@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import DataLoader from "../helpers/DataLoader";
 
 export default function UserInfo({ signer, isLoadingWallet, chain}) {
 
@@ -9,33 +10,19 @@ export default function UserInfo({ signer, isLoadingWallet, chain}) {
                 <div className="text-left">
                     <p>Your address is {signer._address}</p>
                     <p>Connected to {chain.name} network</p> 
-                    <p>Lottery tokens: <span className="font-bold">{getLotteryTokens()}</span></p>
+                    <p>Token balance:&nbsp;
+                        <span className="font-bold text-yellow-500">
+                            <DataLoader
+                                noDataMessage="No lottery tokens"
+                                url={`http://localhost:3001/token-balance?address=${signer._address}`}
+                            />
+                        </span>&nbsp;
+                        LTO
+                    </p>
                 </div>
             </div>
         </>
     )
     if (isLoadingWallet) return <p>Loading...</p>
     return <p>Connect your wallet</p>
-}
-
-function getLotteryTokens() {
-    const [data, setData] = useState(null);
-    const [isLoading, setLoading] = useState(false);
-    
-    useEffect(() => {
-        setLoading(true);
-        fetch(`http://localhost:3001/token-balance`)
-        .then((res) => res.json())
-        .then((data) => {
-            setData(data);
-            setLoading(false);
-        })
-        .catch((error) => {
-            console.error(error)
-        });
-    }, []);
-    
-    if (isLoading) return "Loading...";
-    if (!data && data !== 0) return "No token data";
-    return data;
 }

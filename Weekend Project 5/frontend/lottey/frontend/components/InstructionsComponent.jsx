@@ -26,7 +26,6 @@ export default function InstructionsComponent() {
 			<ClaimReward
 				signer={signer}
 				isLoadingWallet={isLoading}
-				chain={chain}
 			/>
 		</div>
 	);
