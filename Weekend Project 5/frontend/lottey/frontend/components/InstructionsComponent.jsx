@@ -4,6 +4,7 @@ import UserInfo from "./ui/UserInfo";
 import Bet from "./ui/Bet";
 import { useSigner, useNetwork } from "wagmi";
 import ClaimReward from "./ui/ClaimReward";
+import AdminPannel from "./ui/AdminPannel";
 
 const TARGET_CHAIN = "Polygon Mumbai"
 
@@ -30,6 +31,11 @@ export default function InstructionsComponent() {
 					</div>
 					<div>
 						<ClaimReward
+							signer={signer}
+						/>
+					</div>
+					<div>
+						<AdminPannel
 							signer={signer}
 						/>
 					</div>
