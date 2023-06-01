@@ -102,7 +102,10 @@ export class AppService {
 
   // display owner pool
   async getOwnerPool() {
-    return await this.lotteryContract.ownerPool().then((pool) => ethers.utils.formatEther(pool))
+    const value = await this.lotteryContract.ownerPool().then((pool) => ethers.utils.formatEther(pool)).catch((err) => err)
+    return {
+      value,
+    }
   }
 
   // withdraw tokens from pool (amount)
