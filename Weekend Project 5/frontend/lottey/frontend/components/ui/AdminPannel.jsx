@@ -80,8 +80,10 @@ export default function AdminPannel({ signer }) {
                         </div>
                     </div>
                 :
-                <div>
-                    <p>Only admin can see this</p>
+                <div className="text-white flex justify-center items-center">
+                    <div className="border-2 rounded-xl border-cyan-500 p-6 bg-cyan-500 text-xl">
+                        Admin access required
+                    </div>
                 </div>
             }
         </>
