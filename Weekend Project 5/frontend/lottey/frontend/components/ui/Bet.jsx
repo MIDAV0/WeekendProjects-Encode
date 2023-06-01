@@ -68,15 +68,17 @@ export default function Bet({ signer }) {
                             <div className="mt-4">
                                 <APIButton
                                     url={`http://localhost:3001/close-lottery`}
-                                    buttonName="Bet"
+                                    buttonName="Close bets"
                                     method={"GET"}
                                     className={"bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"}
                                 />
                             </div>
                         </div>
                         :
-                        <div>
-                            <p>Lottery is closed</p>
+                        <div className="text-white flex justify-center items-center">
+                            <div className="border-2 rounded-xl border-cyan-500 p-6 bg-cyan-500 text-xl">
+                                Lottery is closed
+                            </div>
                         </div>
                     : 
                     <p>Loading lottery data...</p>
