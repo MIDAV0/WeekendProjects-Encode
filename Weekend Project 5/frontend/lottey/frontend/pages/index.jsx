@@ -4,7 +4,7 @@ import InstructionsComponent from "../components/InstructionsComponent";
 export default function Home() {
   return (
     <div>
-      <main className={styles.main}>
+      <main className="px-6 flex h-[90vh] justify-center">
         <InstructionsComponent></InstructionsComponent>
       </main>
     </div>

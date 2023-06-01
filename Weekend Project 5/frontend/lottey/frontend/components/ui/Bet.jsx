@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import getDataFromAPI from "../utils/fetcher";
+import DataLoader from "../helpers/DataLoader";
 
 // check if lottery is open
 // if yes display bet option and lottery closing time and close lottery button and number of active bets
