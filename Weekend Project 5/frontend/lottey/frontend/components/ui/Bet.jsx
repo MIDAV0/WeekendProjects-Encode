@@ -9,16 +9,9 @@ import APIButton from "../helpers/APIButton";
 export default function Bet({ signer }) {
 	const [state, setState] = useState(null);
 	const [isLoadingState, setLoadingState] = useState(false);
-    const [bet, setBet] = useState(null);
-    const [isLoadingBet, setLoadingBet] = useState(false);
-    const [closeLottery, setCloseLottery] = useState(null);
-    const [isLoadingCloseLottery, setLoadingCloseLottery] = useState(false);
 
     const [numberOfBets, setNumberOfBets] = useState(null);
     const [isLoadingNumberOfBets, setLoadingNumberOfBets] = useState(false);
-
-
-    const [betTimes, setBetTimes] = useState(null);
 
     const [betsAmount, setBetsAmount] = useState(null);
 
