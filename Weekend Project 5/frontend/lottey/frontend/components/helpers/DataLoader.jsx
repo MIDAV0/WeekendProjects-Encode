@@ -16,15 +16,18 @@ export default function DataLoader({ noDataMessage, url }) {
         )
     }, []);
 
+
     if (isLoading) return (
         <>
-            Loading...
+            <span className="font-bold text-yellow-500 loading loading-infinity loading-md"></span>
         </>
     )
 
     if (data) return (
         <>
-            {data.value}
+            <span className="font-bold text-green-500">
+                {data.value}
+            </span>
         </>
     )
 

@@ -9,13 +9,11 @@ export default function UserInfo({ signer, isLoadingWallet, chain}) {
                 <div className="text-left">
                     <p className="truncate">Your address is <b>{signer._address}</b></p>
                     <p>Connected to <b>{chain.name} Network</b></p> 
-                    <p>Token balance:&nbsp;
-                        <span className="font-bold text-yellow-500">
+                    <p className="flex">Token balance:&nbsp;
                             <DataLoader
                                 noDataMessage="No lottery tokens"
                                 url={`http://localhost:3001/token-balance?address=${signer._address}`}
-                            />
-                        </span>&nbsp;
+                            />&nbsp;
                         LTO
                     </p>
                 </div>
